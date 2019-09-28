@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from gis_app.models import Location
+from gis_app.models import Location, UserPosition
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -20,3 +20,9 @@ class LocationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Location
         fields = ['id', 'name', 'lat', 'lon']
+
+
+class UserPositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPosition
+        fields = ['position']

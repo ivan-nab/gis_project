@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
-from gis_app.models import Location
+from gis_app.models import Location, UserPosition
 from gis_app.serializers import UserSerializer, GroupSerializer, \
-                                LocationSerializer
+                                LocationSerializer, UserPositionSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -28,3 +29,20 @@ class LocationViewSet(viewsets.ModelViewSet):
     """
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+
+class UserPositionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for edit or view authenticated user position
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserPositionSerializer
+
+    def get_queryset(self):
+        return UserPosition.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
