@@ -1,6 +1,4 @@
 from django.contrib import admin
+from gis_app.models import Location
 
-from .models import GeoSite
-
-# Register your models here.
-admin.site.register(GeoSite)
+admin.site.register(Location)

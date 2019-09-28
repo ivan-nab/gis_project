@@ -1,9 +1,7 @@
-from django.contrib.gis.db import models
+from django.db import models
 
-# Create your models here.
-class GeoSite(models.Model):
+
+class Location(models.Model):
     name = models.CharField(max_length=255)
-    location = models.PointField(geography=True)
-
-    def __str__(self):
-        return self.name
+    lat = models.FloatField()
+    lon = models.FloatField()

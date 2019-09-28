@@ -1,10 +1,22 @@
+from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from rest_framework_gis.serializers import GeoModelSerializer
-from gis_app.models import GeoSite
+
+from gis_app.models import Location
 
 
-class GeoSiteSerializer (GeoModelSerializer):
-
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = GeoSite
-        fields = ['name', 'location']
+        model = User
+        fields = ['url', 'username', 'email', 'groups']
+
+
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['url', 'name']
+
+
+class LocationSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Location
+        fields = ['id', 'name', 'lat', 'lon']

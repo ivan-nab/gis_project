@@ -16,10 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from rest_framework import routers
+
 from gis_app import views
 
 router = routers.DefaultRouter()
-router.register(r'api/geosites', views.GeoSiteViewSet)
+router.register(r'api/v1/users', views.UserViewSet)
+router.register(r'api/v1/groups', views.GroupViewSet)
+router.register(r'api/v1/locations', views.LocationViewSet)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]

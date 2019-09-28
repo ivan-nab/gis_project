@@ -1,15 +1,30 @@
-from django.shortcuts import render
+from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 
-from gis_app.serializers import GeoSiteSerializer
+from gis_app.models import Location
+from gis_app.serializers import UserSerializer, GroupSerializer, \
+                                LocationSerializer
 
-from gis_app.models import GeoSite
-# Create your views here.
 
-
-class GeoSiteViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for access to objects location
+    API endpoint for edit or view users
     """
-    queryset = GeoSite.objects.all()
-    serializer_class = GeoSiteSerializer
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for edit or view user groups
+    """
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+
+class LocationViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for edit or view locations
+    """
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
