@@ -9,7 +9,9 @@ class Location(models.Model):
 
 
 class UserPosition(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User,
+                                primary_key=True,
+                                on_delete=models.CASCADE)
     position = models.ForeignKey(Location,
                                  null=True,
                                  on_delete=models.SET_NULL)
