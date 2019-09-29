@@ -24,7 +24,7 @@ router = routers.DefaultRouter()
 router.register(r'api/v1/users', views.UserViewSet)
 router.register(r'api/v1/groups', views.GroupViewSet)
 router.register(r'api/v1/locations', views.LocationViewSet)
-router.register(r'api/v1/userposition',
+router.register(r'api/v1/userpositions',
                 views.UserPositionViewSet,
                 basename='UserPosition')
 

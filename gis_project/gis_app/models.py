@@ -9,9 +9,8 @@ class Location(models.Model):
 
 
 class UserPosition(models.Model):
-    user = models.OneToOneField(User,
-                                primary_key=True,
-                                on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     position = models.ForeignKey(Location,
                                  null=True,
                                  on_delete=models.SET_NULL)
+    fetch_time = models.DateTimeField(auto_now=True)

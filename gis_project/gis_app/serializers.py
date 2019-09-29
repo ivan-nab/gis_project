@@ -25,4 +25,4 @@ class LocationSerializer(serializers.HyperlinkedModelSerializer):
 class UserPositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPosition
-        fields = ['position']
+        fields = ['id', 'position', 'fetch_time']
