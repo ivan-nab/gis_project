@@ -1,12 +1,12 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.utils.dateparse import parse_datetime
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from gis_app.models import Location, UserPosition
-from gis_app.serializers import UserSerializer, GroupSerializer, \
-                                LocationSerializer, UserPositionSerializer, \
-                                UserSummarySerializer
+from gis_app.serializers import (GroupSerializer, LocationSerializer,
+                                 UserPositionSerializer, UserSerializer,
+                                 UserSummarySerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -49,17 +49,27 @@ class UserPositionViewSet(viewsets.ModelViewSet):
 
 class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint for view user info  
+    API endpoint for view user info
     """
     permission_classes = [IsAuthenticated]
     serializer_class = UserSummarySerializer
 
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+
+    #     serializer = UserSummarySerializer(queryset, many=True)
+    #     return Response(serializer.data)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        start_time = parse_datetime(
+            self.request.query_params.get('start_time', ''))
+        end_time = parse_datetime(
+            self.request.query_params.get('end_time', ''))
+        context['start_time'] = start_time
+        context['end_time'] = end_time
+        return context
+
     def get_queryset(self):
         qs = User.objects.filter(id=self.request.user.id)
-        start_time = self.request.query_params.get('start_time')
-        end_time = self.request.query_params.get('end_time')
-        if start_time:
-            qs.filter(userposition__fetch_time__gte=start_time)
-        if end_time:
-            qs.filter(userposition__fetch_time__lte=end_time)
         return qs

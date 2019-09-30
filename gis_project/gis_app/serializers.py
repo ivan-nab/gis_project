@@ -37,9 +37,14 @@ class UserSummarySerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'email', 'avg_coords']
 
     def get_avg_coords(self, obj):
-        avg_coords = obj.userposition_set.values('position__lon',
-                                                 'position__lat').aggregate(
-                                                     lon=Avg('position__lon'),
-                                                     lat=Avg('position__lat'))
+        start_time = self.context.get('start_time')
+        end_time = self.context.get('end_time')
+        qs = obj.userposition_set.get_queryset()
+        if start_time:
+            qs = qs.filter(fetch_time__gte=start_time)
+        if end_time:
+            qs = qs.filter(fetch_time__lte=end_time)
+        avg_coords = qs.values('position__lon', 'position__lat').aggregate(
+            lon=Avg('position__lon'), lat=Avg('position__lat'))
 
         return avg_coords
