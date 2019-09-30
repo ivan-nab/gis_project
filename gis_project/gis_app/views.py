@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User, Group
+from django.utils.dateparse import parse_datetime
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
@@ -54,4 +55,11 @@ class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSummarySerializer
 
     def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
+        qs = User.objects.filter(id=self.request.user.id)
+        start_time = self.request.query_params.get('start_time')
+        end_time = self.request.query_params.get('end_time')
+        if start_time:
+            qs.filter(userposition__fetch_time__gte=start_time)
+        if end_time:
+            qs.filter(userposition__fetch_time__lte=end_time)
+        return qs
