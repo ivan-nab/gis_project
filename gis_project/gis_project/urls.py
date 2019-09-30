@@ -27,6 +27,9 @@ router.register(r'api/v1/locations', views.LocationViewSet)
 router.register(r'api/v1/userpositions',
                 views.UserPositionViewSet,
                 basename='UserPosition')
+router.register(r'api/v1/usersummary',
+                views.UserSummaryViewSet,
+                basename='User')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Location(models.Model):
@@ -13,4 +14,4 @@ class UserPosition(models.Model):
     position = models.ForeignKey(Location,
                                  null=True,
                                  on_delete=models.SET_NULL)
-    fetch_time = models.DateTimeField(auto_now=True)
+    fetch_time = models.DateTimeField(default=timezone.now)

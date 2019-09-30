@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from gis_app.models import Location, UserPosition
 from gis_app.serializers import UserSerializer, GroupSerializer, \
-                                LocationSerializer, UserPositionSerializer
+                                LocationSerializer, UserPositionSerializer, \
+                                UserSummarySerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -43,3 +44,14 @@ class UserPositionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint for view user info  
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSummarySerializer
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
