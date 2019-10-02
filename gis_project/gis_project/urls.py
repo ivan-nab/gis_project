@@ -21,19 +21,16 @@ from rest_framework import routers
 from gis_app import views
 
 router = routers.DefaultRouter()
-router.register(r'api/v1/users', views.UserViewSet)
-router.register(r'api/v1/groups', views.GroupViewSet)
-router.register(r'api/v1/locations', views.LocationViewSet)
-router.register(r'api/v1/userpositions',
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
+router.register(r'locations', views.LocationViewSet)
+router.register(r'userpositions',
                 views.UserPositionViewSet,
-                basename='UserPosition')
-router.register(r'api/v1/usersummary',
-                views.UserSummaryViewSet,
-                basename='User')
+                basename='user-position')
+router.register(r'usersummary', views.UserSummaryViewSet, basename='user-summary')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls'))
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/v1/', include(router.urls))
 ]
-
-urlpatterns += router.urls
