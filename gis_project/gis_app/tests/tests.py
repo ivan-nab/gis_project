@@ -1,12 +1,15 @@
 import urllib.parse
+from statistics import mean
 
+from django.contrib.auth.models import User
 from requests.auth import HTTPBasicAuth
+from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase, RequestsClient
-from django.contrib.auth.models import User
-from gis_app.serializers import UserPositionSerializer
-from rest_framework import status
-from .factories import UserFactory, UserPositionFactory
+
+from gis_app.serializers import UserPositionSerializer, UserSummarySerializer
+
+from .factories import LocationFactory, UserFactory, UserPositionFactory
 
 
 class UserPositionTestCase(APITestCase):
@@ -43,6 +46,35 @@ class UserPositionTestCase(APITestCase):
         self.client.logout()
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class UserSummaryTestCase(APITestCase):
+    url = reverse('user-summary-list')
+
+    def setUp(self):
+        super(UserSummaryTestCase, self).setUp()
+        self.user = UserFactory()
+        self.locations = LocationFactory.create_batch(3)
+        self.avg_lat = mean([l.lat for l in self.locations])
+        self.avg_lon = mean([l.lon for l in self.locations])
+
+        self.user_positions = [
+            UserPositionFactory(user=self.user, position=pos)
+            for pos in self.locations
+        ]
+
+        self.data = UserSummarySerializer(self.user).data
+
+    def test_get_user_summary(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url)
+        summary_info = response.data['results'][0]
+        self.assertEqual(summary_info, self.data)
+        avg_coords = summary_info['avg_coords']
+        self.assertEqual(round(float(avg_coords['lon']), 3),
+                         round(float(self.avg_lon), 3))
+        self.assertEqual(round(float(avg_coords['lat']), 3),
+                         round(float(self.avg_lat), 3))
 
         # # Obtain a CSRF token.
         # base_url = 'http://testserver'
