@@ -2,7 +2,7 @@ import factory
 from django.contrib.auth.models import User
 from faker import Faker
 
-from gis_app.models import Location, UserPosition
+from gis_app.models import Location, UserPosition, Vehicle
 
 faker = Faker()
 
@@ -35,3 +35,21 @@ class UserPositionFactory(factory.django.DjangoModelFactory):
     position = factory.SubFactory(LocationFactory)
     fetch_time = factory.LazyAttribute(
         lambda obj: faker.past_datetime(start_date="-30d", tzinfo=None))
+
+
+class VehicleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Vehicle
+
+    name = factory.LazyAttribute(lambda obj: faker.name())
+
+    speed = factory.LazyAttribute(lambda obj: faker.random_int(min=0, max=999))
+
+    @factory.post_generation
+    def users(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for user in extracted:
+                self.users.add(user)

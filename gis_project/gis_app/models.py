@@ -15,3 +15,9 @@ class UserPosition(models.Model):
                                  null=True,
                                  on_delete=models.SET_NULL)
     fetch_time = models.DateTimeField(default=timezone.now)
+
+
+class Vehicle(models.Model):
+    name = models.CharField(max_length=255)
+    speed = models.DecimalField(max_digits=4, decimal_places=0)
+    users = models.ManyToManyField(User)

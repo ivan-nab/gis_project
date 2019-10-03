@@ -2,3 +2,4 @@
 venv/**
 *.pyc
 RU.txt
+.coverage
