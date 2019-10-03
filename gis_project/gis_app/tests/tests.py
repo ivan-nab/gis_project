@@ -127,22 +127,3 @@ class UserSummaryTestCase(APITestCase):
         coords = response.data['results'][0]['avg_coords']
         self.assertEqual(None, coords['lat'])
         self.assertEqual(None, coords['lon'])
-        # # Obtain a CSRF token.
-        # base_url = 'http://testserver'
-        # endpoint_url = urllib.parse.urljoin(base_url, 'api-auth/login/')
-        # response = client.get(endpoint_url)
-        # user = self.users[0]
-        # assert response.status_code == 200
-        # csrftoken = response.cookies['csrftoken']
-        # #endpoint_url = urllib.parse.urljoin(base_url, reverse(self.url))
-
-        # response = client.post(endpoint_url,
-        #                        headers={'X-CSRFToken': csrftoken},
-        #                        data={
-        #                            'username': user.username,
-        #                            'password': user.password
-        #                        },
-        #                        cookies={'csrftoken': csrftoken},
-        #                        allow_redirects=False)
-        # assert response.status_code != 403
-        # print(response.status_code)
