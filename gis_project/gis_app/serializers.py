@@ -2,7 +2,7 @@ from django.db.models import Avg
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from gis_app.models import Location, UserPosition, Vehicle, UserVehicle
+from gis_app.models import Location, UserPosition, Vehicle
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -63,18 +63,3 @@ class VehicleSerializer(serializers.ModelSerializer):
         vehicle = Vehicle.objects.get(pk=instance.id)
         vehicle.users.add(self.context['request'].user)
         return vehicle
-
-
-class UserVehicleSerializer(serializers.ModelSerializer):
-    vehicle = VehicleSerializer()
-
-    class Meta:
-        model = UserVehicle
-        fields = ['id', 'vehicle']
-
-    def create(self, validated_data):
-        vehicle_data = validated_data.pop('vehicle')
-        user = self.context['request'].user
-        vehicle = Vehicle.objects.create(**vehicle_data)
-        uservehicle = UserVehicle.objects.create(user=user, vehicle=vehicle)
-        return uservehicle

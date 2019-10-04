@@ -1,4 +1,4 @@
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urljoin
 
 from rest_framework.test import APITestCase, RequestsClient
 
@@ -20,7 +20,6 @@ class UserAuthTestCase(APITestCase):
         response = requests_client.get(endpoint_url)
         self.assertEqual(response.status_code, 200)
         csrftoken = response.cookies['csrftoken']
-        #endpoint_url = urllib.parse.urljoin(base_url, reverse(self.url))
 
         response = requests_client.post(endpoint_url,
                                         headers={'X-CSRFToken': csrftoken},

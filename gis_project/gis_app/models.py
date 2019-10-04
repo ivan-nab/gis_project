@@ -26,3 +26,6 @@ class Vehicle(models.Model):
 class UserVehicle(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'vehicle')

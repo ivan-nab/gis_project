@@ -7,7 +7,8 @@ from rest_framework.test import APITestCase
 
 from gis_app.serializers import UserPositionSerializer, UserSummarySerializer
 
-from .factories import LocationFactory, UserFactory, UserPositionFactory
+from .factories import LocationFactory, UserFactory, UserPositionFactory,\
+                        VehicleFactory
 
 
 class UserPositionTestCase(APITestCase):
@@ -53,7 +54,8 @@ class UserSummaryTestCase(APITestCase):
         super(UserSummaryTestCase, self).setUp()
         self.user = UserFactory()
         self.locations = LocationFactory.create_batch(3)
-
+        self.user_vehicles = VehicleFactory.create_batch(2,
+                                                         users=(self.user, ))
         self.start_time = parse_datetime("2019-10-01T00:00:00Z")
         self.mid_time = parse_datetime("2019-10-02T00:00:00Z")
         self.end_time = parse_datetime("2019-10-03T00:00:00Z")
@@ -127,3 +129,11 @@ class UserSummaryTestCase(APITestCase):
         coords = response.data['results'][0]['avg_coords']
         self.assertEqual(None, coords['lat'])
         self.assertEqual(None, coords['lon'])
+
+    def test_user_vehicles_names(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url)
+        summary_info = response.data['results'][0]
+        received_vehicles_names = summary_info['vehicles']
+        self.assertEqual(received_vehicles_names,
+                         [v.name for v in self.user_vehicles])

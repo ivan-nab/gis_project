@@ -1,14 +1,15 @@
 from django.contrib.auth.models import Group, User
 from django.utils.dateparse import parse_datetime
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, \
+                                        IsAuthenticatedOrReadOnly
+from rest_framework.decorators import action
 
-from gis_app.models import Location, UserPosition, Vehicle, UserVehicle
+from gis_app.models import Location, UserPosition, Vehicle
 from gis_app.serializers import (GroupSerializer, LocationSerializer,
                                  UserPositionSerializer, UserSerializer,
-                                 UserSummarySerializer, VehicleSerializer,
-                                 UserVehicleSerializer)
+                                 UserSummarySerializer, VehicleSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -55,7 +56,7 @@ class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = UserSummarySerializer
-    
+
     # def list(self, request, *args, **kwargs):
     #     queryset = self.filter_queryset(self.get_queryset())
 
@@ -85,24 +86,24 @@ class VehicleViewSet(viewsets.ModelViewSet):
     serializer_class = VehicleSerializer
     queryset = Vehicle.objects.all()
 
-    def partial_update(self, request, pk=None):
+    @action(detail=True, methods=['post'])
+    def attach_user(self, request, pk=None):
         vehicle = self.get_object()
-        serialized = VehicleSerializer(vehicle,
-                                       data=request.data,
-                                       context={'request': request},
-                                       partial=True)
-        serialized.is_valid(raise_exception=True)
-        serialized.save()
-        return Response(serialized.data)
+        vehicle.users.add(self.request.user)
+        vehicle.save()
+        return Response({
+            'status':
+            f'vehicle {vehicle.name} attached \
+                to user {self.request.user.username}'
+        })
 
-
-class UserVehicleViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint for create or
-    delete vehicles of current user
-    """
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserVehicleSerializer
-
-    def get_queryset(self):
-        return UserVehicle.objects.filter(user=self.request.user)
+    @action(detail=True, methods=['post'])
+    def detach_user(self, request, pk=None):
+        vehicle = self.get_object()
+        vehicle.users.remove(self.request.user)
+        vehicle.save()
+        return Response({
+            'status':
+            f'vehicle {vehicle.name} detached \
+                from user {self.request.user.username}'
+        })
