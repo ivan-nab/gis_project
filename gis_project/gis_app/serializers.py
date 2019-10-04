@@ -2,7 +2,7 @@ from django.db.models import Avg
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from gis_app.models import Location, UserPosition
+from gis_app.models import Location, UserPosition, Vehicle, UserVehicle
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -31,10 +31,11 @@ class UserPositionSerializer(serializers.ModelSerializer):
 
 class UserSummarySerializer(serializers.ModelSerializer):
     avg_coords = serializers.SerializerMethodField()
+    vehicles = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'avg_coords']
+        fields = ['first_name', 'last_name', 'email', 'avg_coords', 'vehicles']
 
     def get_avg_coords(self, obj):
         start_time = self.context.get('start_time')
@@ -48,3 +49,32 @@ class UserSummarySerializer(serializers.ModelSerializer):
             lon=Avg('position__lon'), lat=Avg('position__lat'))
 
         return avg_coords
+
+    def get_vehicles(self, obj):
+        return list(obj.vehicle_set.values_list('name', flat=True))
+
+
+class VehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        vehicle = Vehicle.objects.get(pk=instance.id)
+        vehicle.users.add(self.context['request'].user)
+        return vehicle
+
+
+class UserVehicleSerializer(serializers.ModelSerializer):
+    vehicle = VehicleSerializer()
+
+    class Meta:
+        model = UserVehicle
+        fields = ['id', 'vehicle']
+
+    def create(self, validated_data):
+        vehicle_data = validated_data.pop('vehicle')
+        user = self.context['request'].user
+        vehicle = Vehicle.objects.create(**vehicle_data)
+        uservehicle = UserVehicle.objects.create(user=user, vehicle=vehicle)
+        return uservehicle

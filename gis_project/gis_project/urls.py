@@ -27,7 +27,13 @@ router.register(r'locations', views.LocationViewSet)
 router.register(r'userpositions',
                 views.UserPositionViewSet,
                 basename='user-position')
-router.register(r'usersummary', views.UserSummaryViewSet, basename='user-summary')
+router.register(r'usersummary',
+                views.UserSummaryViewSet,
+                basename='user-summary')
+router.register(r'vehicles', views.VehicleViewSet, basename='vehicles')
+router.register(r'uservehicles',
+                views.UserVehicleViewSet,
+                basename='user-vehicles')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
