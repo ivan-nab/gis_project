@@ -44,10 +44,12 @@ class UserPositionViewSet(viewsets.ModelViewSet):
     serializer_class = UserPositionSerializer
 
     def get_queryset(self):
-        return UserPosition.objects.filter(user=self.request.user)
+        user = UserAccount.objects.get(id=self.request.user.id)
+        return UserPosition.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = UserAccount.objects.get(id=self.request.user.id)
+        serializer.save(user=user)
 
 
 class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):

@@ -1,10 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Avg
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.functional import cached_property
 
 
 class Location(models.Model):
@@ -16,6 +13,16 @@ class Location(models.Model):
 class UserAccount(User):
     vehicles = models.TextField()
     avg_coords = models.TextField()
+
+    def calculate_avg_coords(self):
+        return UserPosition.objects.filter(user_id=self.id).values(
+            'position__lon',
+            'position__lat').aggregate(lon=Avg('position__lon'),
+                                       lat=Avg('position__lat'))
+
+    def get_vehicles_names(self):
+        return list(self.vehicle_set.get_queryset().values_list('name',
+                                                                flat=True))
 
 
 class UserPosition(models.Model):
@@ -38,7 +45,6 @@ class UserVehicle(models.Model):
 
     class Meta:
         unique_together = ('user', 'vehicle')
-
 
     # @cached_property
     # def vehicles(self):

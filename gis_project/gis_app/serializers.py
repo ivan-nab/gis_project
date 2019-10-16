@@ -40,6 +40,9 @@ class UserSummarySerializer(serializers.ModelSerializer):
     def get_avg_coords(self, obj):
         start_time = self.context.get('start_time')
         end_time = self.context.get('end_time')
+        if obj.avg_coords and not start_time or end_time:
+            return obj.avg_coords
+
         qs = obj.userposition_set.get_queryset()
         if start_time:
             qs = qs.filter(fetch_time__gte=start_time)
@@ -48,7 +51,7 @@ class UserSummarySerializer(serializers.ModelSerializer):
         avg_coords = qs.values('position__lon', 'position__lat').aggregate(
             lon=Avg('position__lon'), lat=Avg('position__lat'))
 
-        return avg_coords
+        return obj.avg_coords
 
     def get_vehicles(self, obj):
         return list(obj.vehicle_set.values_list('name', flat=True))
