@@ -2,12 +2,12 @@ from django.db.models import Avg
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from gis_app.models import Location, UserPosition, Vehicle
+from gis_app.models import Location, UserPosition, Vehicle, UserAccount
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = User
+        model = UserAccount
         fields = ['url', 'username', 'email', 'groups']
 
 
@@ -34,7 +34,7 @@ class UserSummarySerializer(serializers.ModelSerializer):
     vehicles = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = UserAccount
         fields = ['first_name', 'last_name', 'email', 'avg_coords', 'vehicles']
 
     def get_avg_coords(self, obj):

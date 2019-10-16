@@ -2,14 +2,14 @@ import factory
 from django.contrib.auth.models import User
 from faker import Faker
 
-from gis_app.models import Location, UserPosition, Vehicle
+from gis_app.models import Location, UserPosition, Vehicle, UserAccount
 
 faker = Faker()
 
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = UserAccount
         django_get_or_create = ('username', )
 
     username = factory.LazyAttribute(

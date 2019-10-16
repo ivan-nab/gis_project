@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, \
                                         IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 
-from gis_app.models import Location, UserPosition, Vehicle
+from gis_app.models import Location, UserPosition, Vehicle, UserAccount
 from gis_app.serializers import (GroupSerializer, LocationSerializer,
                                  UserPositionSerializer, UserSerializer,
                                  UserSummarySerializer, VehicleSerializer)
@@ -16,7 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint for edit or view users
     """
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = UserAccount.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
 
@@ -74,7 +74,7 @@ class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):
         return context
 
     def get_queryset(self):
-        qs = User.objects.filter(id=self.request.user.id)
+        qs = UserAccount.objects.filter(id=self.request.user.id)
         return qs
 
 
@@ -93,8 +93,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
         vehicle.save()
         return Response({
             'status':
-            f'vehicle {vehicle.name} attached \
-                to user {self.request.user.username}'
+            f'vehicle {vehicle.name} attached to user {self.request.user.username}'
         })
 
     @action(detail=True, methods=['post'])
@@ -104,6 +103,5 @@ class VehicleViewSet(viewsets.ModelViewSet):
         vehicle.save()
         return Response({
             'status':
-            f'vehicle {vehicle.name} detached \
-                from user {self.request.user.username}'
+            f'vehicle {vehicle.name} detached from user {self.request.user.username}'
         })
