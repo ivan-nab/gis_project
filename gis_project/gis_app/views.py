@@ -91,17 +91,19 @@ class VehicleViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def attach_user(self, request, pk=None):
         vehicle = self.get_object()
-        vehicle.users.add(self.request.user)
+        user = UserAccount.objects.get(id=self.request.user.id)
+        vehicle.users.add(user)
         vehicle.save()
         return Response({
             'status':
-            f'vehicle {vehicle.name} attached to user {self.request.user.username}'
+            f'vehicle {vehicle.name} attached to user {user.username}'
         })
 
     @action(detail=True, methods=['post'])
     def detach_user(self, request, pk=None):
         vehicle = self.get_object()
-        vehicle.users.remove(self.request.user)
+        user = UserAccount.objects.get(id=self.request.user.id)
+        vehicle.users.remove(user)
         vehicle.save()
         return Response({
             'status':

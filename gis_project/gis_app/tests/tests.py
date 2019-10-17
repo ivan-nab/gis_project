@@ -1,4 +1,5 @@
 from statistics import mean
+from urllib.parse import urljoin
 
 from django.utils.dateparse import parse_datetime
 from rest_framework import status
@@ -7,8 +8,8 @@ from rest_framework.test import APITestCase
 
 from gis_app.serializers import UserPositionSerializer, UserSummarySerializer
 
-from .factories import LocationFactory, UserFactory, UserPositionFactory,\
-                        VehicleFactory
+from .factories import (LocationFactory, UserFactory, UserPositionFactory,
+                        VehicleFactory)
 
 
 class UserPositionTestCase(APITestCase):
@@ -56,6 +57,7 @@ class UserSummaryTestCase(APITestCase):
         self.locations = LocationFactory.create_batch(3)
         self.user_vehicles = VehicleFactory.create_batch(2,
                                                          users=(self.user, ))
+        self.vehicles = VehicleFactory.create_batch(3, users=(UserFactory(), ))
         self.start_time = parse_datetime("2019-10-01T00:00:00Z")
         self.mid_time = parse_datetime("2019-10-02T00:00:00Z")
         self.end_time = parse_datetime("2019-10-03T00:00:00Z")
@@ -135,5 +137,22 @@ class UserSummaryTestCase(APITestCase):
         response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         received_vehicles_names = summary_info['vehicles']
+        self.assertIsNotNone(self.user.vehicles)
         self.assertEqual(received_vehicles_names,
                          [v.name for v in self.user_vehicles])
+
+    def test_user_vehicles_names_cache(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url)
+        summary_info = response.data['results'][0]
+        received_vehicles_names = summary_info['vehicles']
+        vehicle = self.vehicles[0]
+        attach_url = urljoin(reverse('vehicles-list'),
+                             f'{vehicle.id}/attach_user/')
+        response = self.client.post(attach_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(self.url)
+        summary_info = response.data['results'][0]
+        new_vehicle_names = summary_info['vehicles']
+        self.assertIsNotNone(new_vehicle_names)
+        self.assertNotEqual(received_vehicles_names, new_vehicle_names)

@@ -1,8 +1,10 @@
+import json
+
+from django.contrib.auth.models import Group, User
 from django.db.models import Avg
-from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from gis_app.models import Location, UserPosition, Vehicle, UserAccount
+from gis_app.models import Location, UserAccount, UserPosition, Vehicle
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -40,21 +42,16 @@ class UserSummarySerializer(serializers.ModelSerializer):
     def get_avg_coords(self, obj):
         start_time = self.context.get('start_time')
         end_time = self.context.get('end_time')
-        if obj.avg_coords and not start_time or end_time:
-            return obj.avg_coords
-
-        qs = obj.userposition_set.get_queryset()
-        if start_time:
-            qs = qs.filter(fetch_time__gte=start_time)
-        if end_time:
-            qs = qs.filter(fetch_time__lte=end_time)
-        avg_coords = qs.values('position__lon', 'position__lat').aggregate(
-            lon=Avg('position__lon'), lat=Avg('position__lat'))
-
-        return obj.avg_coords
+        if obj.avg_coords and not (start_time or end_time):
+            return json.loads(obj.avg_coords)
+        avg_coords = obj.calculate_avg_coords(start_time, end_time)
+        return avg_coords
 
     def get_vehicles(self, obj):
-        return list(obj.vehicle_set.values_list('name', flat=True))
+        if obj.vehicles:
+            return json.loads(obj.vehicles)
+        else:
+            return obj.get_vehicles_names()
 
 
 class VehicleSerializer(serializers.ModelSerializer):
