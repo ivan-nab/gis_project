@@ -156,3 +156,14 @@ class UserSummaryTestCase(APITestCase):
         new_vehicle_names = summary_info['vehicles']
         self.assertIsNotNone(new_vehicle_names)
         self.assertNotEqual(received_vehicles_names, new_vehicle_names)
+
+    def test_user_avg_coords_cache(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url)
+        summary_info = response.data['results'][0]
+        coords = summary_info['avg_coords']
+        UserPositionFactory(user=self.user)
+        response = self.client.get(self.url)
+        summary_info = response.data['results'][0]
+        new_coords = summary_info['avg_coords']
+        self.assertNotEqual(coords, new_coords)
