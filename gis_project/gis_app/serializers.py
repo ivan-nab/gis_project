@@ -49,7 +49,6 @@ class UserSummarySerializer(serializers.ModelSerializer):
 
     def get_vehicles(self, obj):
         return json.loads(obj.vehicles or "[]")
-    
 
 
 class VehicleSerializer(serializers.ModelSerializer):
