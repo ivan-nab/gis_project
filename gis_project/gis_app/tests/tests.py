@@ -55,9 +55,9 @@ class UserSummaryTestCase(APITestCase):
         super(UserSummaryTestCase, self).setUp()
         self.user = UserFactory()
         self.locations = LocationFactory.create_batch(3)
-        self.user_vehicles = VehicleFactory.create_batch(2,
-                                                         users=(self.user, ))
-        self.vehicles = VehicleFactory.create_batch(3, users=(UserFactory(), ))
+        # self.user_vehicles = VehicleFactory.create_batch(2,
+        #                                                  users=(self.user, ))
+        self.vehicles = VehicleFactory.create_batch(3)
         self.start_time = parse_datetime("2019-10-01T00:00:00Z")
         self.mid_time = parse_datetime("2019-10-02T00:00:00Z")
         self.end_time = parse_datetime("2019-10-03T00:00:00Z")
@@ -134,12 +134,13 @@ class UserSummaryTestCase(APITestCase):
 
     def test_user_vehicles_names(self):
         self.client.force_authenticate(self.user)
+        self.vehicles[0].users.add(self.user)
         response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         received_vehicles_names = summary_info['vehicles']
-        self.assertIsNotNone(self.user.vehicles)
+        self.assertNotEqual(self.user.vehicles, [])
         self.assertEqual(received_vehicles_names,
-                         [v.name for v in self.user_vehicles])
+                         [v.name for v in self.user.vehicle_set.all()])
 
     def test_user_vehicles_names_cache(self):
         self.client.force_authenticate(self.user)
@@ -151,7 +152,9 @@ class UserSummaryTestCase(APITestCase):
                              f'{vehicle.id}/attach_user/')
         response = self.client.post(attach_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(self.url)
+
+        with self.assertNumQueries(2):
+            response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         new_vehicle_names = summary_info['vehicles']
         self.assertIsNotNone(new_vehicle_names)
@@ -163,7 +166,8 @@ class UserSummaryTestCase(APITestCase):
         summary_info = response.data['results'][0]
         coords = summary_info['avg_coords']
         UserPositionFactory(user=self.user)
-        response = self.client.get(self.url)
+        with self.assertNumQueries(2):
+            response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         new_coords = summary_info['avg_coords']
         self.assertNotEqual(coords, new_coords)

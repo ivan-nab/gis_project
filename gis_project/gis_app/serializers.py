@@ -48,10 +48,8 @@ class UserSummarySerializer(serializers.ModelSerializer):
         return avg_coords
 
     def get_vehicles(self, obj):
-        if obj.vehicles:
-            return json.loads(obj.vehicles)
-        else:
-            return obj.get_vehicles_names()
+        return json.loads(obj.vehicles or "[]")
+    
 
 
 class VehicleSerializer(serializers.ModelSerializer):
