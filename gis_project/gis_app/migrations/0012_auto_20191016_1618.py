@@ -6,8 +6,6 @@ from django.db import connection, migrations, models
 
 
 def populate_useraccounts(apps, schema_editor):
-    # We can't import the Person model directly as it may be a newer
-    # version than this migration expects. We use the historical version.
     User = get_user_model()
     users = User.objects.all()
     if not users:
