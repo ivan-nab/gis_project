@@ -1,7 +1,6 @@
 import json
 
-from django.contrib.auth.models import Group, User
-from django.db.models import Avg
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
 from gis_app.models import Location, UserAccount, UserPosition, Vehicle
