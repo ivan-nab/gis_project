@@ -59,3 +59,7 @@ class VehicleSerializer(serializers.ModelSerializer):
         vehicle = Vehicle.objects.get(pk=instance.id)
         vehicle.users.add(self.context['request'].user)
         return vehicle
+
+
+class DistanceSerializer(serializers.Serializer):
+    distance = serializers.FloatField(required=False)

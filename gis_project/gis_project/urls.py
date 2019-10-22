@@ -31,6 +31,7 @@ router.register(r'usersummary',
                 views.UserSummaryViewSet,
                 basename='user-summary')
 router.register(r'vehicles', views.VehicleViewSet, basename='vehicles')
+router.register(r'distance', views.DistanceViewSet, basename='distance')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

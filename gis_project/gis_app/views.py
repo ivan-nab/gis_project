@@ -1,15 +1,18 @@
+from django.core.cache import cache
 from django.contrib.auth.models import Group, User
 from django.utils.dateparse import parse_datetime
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, \
-                                        IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 
-from gis_app.models import Location, UserPosition, Vehicle, UserAccount
+import gis_app.services as services
+from gis_app.models import Location, UserAccount, UserPosition, Vehicle
 from gis_app.serializers import (GroupSerializer, LocationSerializer,
                                  UserPositionSerializer, UserSerializer,
-                                 UserSummarySerializer, VehicleSerializer)
+                                 UserSummarySerializer, VehicleSerializer,
+                                 DistanceSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -109,3 +112,28 @@ class VehicleViewSet(viewsets.ModelViewSet):
             'status':
             f'vehicle {vehicle.name} detached from user {self.request.user.username}'
         })
+
+
+class DistanceViewSet(viewsets.ViewSet):
+    def list(self, request):
+        user_position = UserPosition.objects.filter(
+            user=self.request.user).latest('fetch_time')
+        start_position = f"{user_position.position.lat},{user_position.position.lon}"
+        end_position = request.query_params.get('end')
+        try:
+            end_position_lat, end_position_lon = end_position.split(",")
+            geohash = services.get_hash_for_coords(
+                (user_position.position.lat, user_position.position.lon),
+                (float(end_position_lat), float(end_position_lon)))
+        except ValueError:
+            return Response({"error": "incorrect query parameters"})
+        data = cache.get(geohash)
+        if not data:
+            print("fetching from external api")
+            data = services.get_distance_from_openrouteservice(
+                start_position, end_position)
+            distance = data.get('distance')
+            if distance:
+                cache.set(geohash, data)
+        results = DistanceSerializer(data).data
+        return Response(results)

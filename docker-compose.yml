@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+ db:
+  image: postgres
+ redis:
+  container_name: redis
+  image: redis
+  ports:
+     - "6379:6379"
+  entrypoint: redis-server --appendonly yes
+  restart: always
+ web:
+   build: .
+   command: python manage.py runserver 0.0.0.0:8000
+   volumes:
+     - "$PWD/gis_project:/project"
+   ports:
+     - "8000:8000"
+   depends_on:
+     - db
+     - redis

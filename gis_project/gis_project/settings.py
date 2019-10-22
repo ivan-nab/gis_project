@@ -68,15 +68,35 @@ WSGI_APPLICATION = 'gis_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'gis_db',
+#         'USER': 'gis_user',
+#         'PASSWORD': 'gis_user123',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     },
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gis_db',
-        'USER': 'gis_user',
-        'PASSWORD': 'gis_user123',
-        'HOST': '127.0.0.1',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        #'PASSWORD': 'gis_user123',
+        'HOST': 'db',
         'PORT': '5432',
     },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
 }
 
 # Password validation
@@ -129,3 +149,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':
     ['rest_framework.authentication.SessionAuthentication']
 }
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
