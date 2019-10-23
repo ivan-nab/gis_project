@@ -1,0 +1,13 @@
+{
+    "error": {
+        "code": 2099,
+        "message": null
+    },
+    "info": {
+        "engine": {
+            "version": "5.0.2",
+            "build_date": "2019-09-20T13:42:22Z"
+        },
+        "timestamp": 1571781775225
+    }
+}

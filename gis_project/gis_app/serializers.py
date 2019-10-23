@@ -61,5 +61,25 @@ class VehicleSerializer(serializers.ModelSerializer):
         return vehicle
 
 
-class DistanceSerializer(serializers.Serializer):
-    distance = serializers.FloatField(required=False)
+class CoordsStringSerializer(serializers.BaseSerializer):
+    def to_internal_value(self, data):
+
+        try:
+            position_lat, position_lon = data.split(",")
+            position_lat = float(position_lat)
+            position_lon = float(position_lon)
+        except ValueError:
+            raise serializers.ValidationError({'end': 'Incorrect query parameters'})
+
+        if not -90.0 < position_lat < 90.0:
+            raise serializers.ValidationError({'end': 'Incorrect latitude value'})
+        if not -180.0 < position_lon < 180.0:
+            raise serializers.ValidationError({'end': 'Incorrect longitude value'})
+
+        return {'lat': position_lat, 'lon': position_lon}
+
+    def to_representation(self, obj):
+        return {
+            'lat': obj['lat'],
+            'lon': obj['lon']
+        }
