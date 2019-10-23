@@ -1,13 +1,17 @@
-import requests
 import json
+
 import mz2geohash
+import requests
+
+from django.conf import settings
 
 from gis_app.exceptions import ExternalServiceError
+
 
 def get_distance_from_openrouteservice(start, end):
     api_url = "https://api.openrouteservice.org/v2/directions/driving-car"
     params = {
-        "api_key": "5b3ce3597851110001cf62486763fa81a66e4f6eb844acb17ed611b2",
+        "api_key": settings.OPENROUTESERVICE_API_KEY,
         "start": f"{start[0]},{start[1]}",
         "end": f"{end[0]},{end[1]}"
     }
