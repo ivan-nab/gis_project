@@ -55,11 +55,6 @@ class VehicleSerializer(serializers.ModelSerializer):
         model = Vehicle
         fields = '__all__'
 
-    def update(self, instance, validated_data):
-        vehicle = Vehicle.objects.get(pk=instance.id)
-        vehicle.users.add(self.context['request'].user)
-        return vehicle
-
 
 class CoordsStringSerializer(serializers.BaseSerializer):
     def to_internal_value(self, data):
@@ -69,17 +64,17 @@ class CoordsStringSerializer(serializers.BaseSerializer):
             position_lat = float(position_lat)
             position_lon = float(position_lon)
         except ValueError:
-            raise serializers.ValidationError({'end': 'Incorrect query parameters'})
+            raise serializers.ValidationError(
+                {'end': 'Incorrect query parameters'})
 
         if not -90.0 < position_lat < 90.0:
-            raise serializers.ValidationError({'end': 'Incorrect latitude value'})
+            raise serializers.ValidationError(
+                {'end': 'Incorrect latitude value'})
         if not -180.0 < position_lon < 180.0:
-            raise serializers.ValidationError({'end': 'Incorrect longitude value'})
+            raise serializers.ValidationError(
+                {'end': 'Incorrect longitude value'})
 
         return {'lat': position_lat, 'lon': position_lon}
 
     def to_representation(self, obj):
-        return {
-            'lat': obj['lat'],
-            'lon': obj['lon']
-        }
+        return {'lat': obj['lat'], 'lon': obj['lon']}

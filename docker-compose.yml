@@ -9,6 +9,17 @@ services:
      - "6379:6379"
   entrypoint: redis-server --appendonly yes
   restart: always
+ rabbitmq:
+  image: rabbitmq
+  command: rabbitmq-server
+  expose:
+    - 5672
+    - 15672
+  healthcheck:
+    test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+    interval: 5s
+    timeout: 15s
+    retries: 1
  web:
    build: .
    command: python manage.py runserver 0.0.0.0:8000
@@ -16,6 +27,15 @@ services:
      - "$PWD/gis_project:/project"
    ports:
      - "8000:8000"
+   depends_on:
+     - db
+     - redis
+     - rabbitmq
+ celery:
+   build: .
+   command: celery -A gis_project worker -l info
+   volumes:
+     - "$PWD/gis_project:/project"
    depends_on:
      - db
      - redis

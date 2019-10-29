@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from django.utils.dateparse import parse_datetime
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, override_settings
 
 from gis_app.serializers import UserPositionSerializer, UserSummarySerializer
 
@@ -132,6 +132,9 @@ class UserSummaryTestCase(APITestCase):
         self.assertEqual(None, coords['lat'])
         self.assertEqual(None, coords['lon'])
 
+    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+                       CELERY_ALWAYS_EAGER=True,
+                       CELERY_BROKER_URL='memory')
     def test_user_vehicles_names(self):
         self.client.force_authenticate(self.user)
         self.vehicles[0].users.add(self.user)
@@ -142,6 +145,9 @@ class UserSummaryTestCase(APITestCase):
         self.assertEqual(received_vehicles_names,
                          [v.name for v in self.user.vehicle_set.all()])
 
+    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+                       CELERY_ALWAYS_EAGER=True,
+                       CELERY_BROKER_URL='memory')
     def test_user_vehicles_names_cache(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
@@ -153,20 +159,23 @@ class UserSummaryTestCase(APITestCase):
         response = self.client.post(attach_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(3):
             response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         new_vehicle_names = summary_info['vehicles']
         self.assertIsNotNone(new_vehicle_names)
         self.assertNotEqual(received_vehicles_names, new_vehicle_names)
 
+    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+                       CELERY_ALWAYS_EAGER=True,
+                       CELERY_BROKER_URL='memory')
     def test_user_avg_coords_cache(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         coords = summary_info['avg_coords']
         UserPositionFactory(user=self.user)
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(3):
             response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         new_coords = summary_info['avg_coords']

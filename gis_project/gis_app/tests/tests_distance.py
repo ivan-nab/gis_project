@@ -129,7 +129,6 @@ class DistanceTestCase(APITestCase):
         mock_get.return_value.content = self.bad_response_json
         mock_get.return_value.status_code = 500
         response = self.client.get(self.url, {'end': self.end_coords})
-        error = ExternalServiceError(
-                "Error fetching data from openrouteservice API")
+        error = ExternalServiceError("Error fetching data from openrouteservice API")
         self.assertEqual(response.data, {'detail': error.detail})
         self.assertEqual(response.status_code, 503)
