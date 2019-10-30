@@ -1,13 +1,15 @@
 from urllib.parse import urljoin
+from unittest import mock
 
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase,override_settings
+from rest_framework.test import APITestCase, override_settings
 
 from gis_app.serializers import VehicleSerializer
 
 from .factories import UserFactory, VehicleFactory
+from gis_app.business_logic import update_avg_coords, update_user_vehicles, update_users_vehicles_names
 
 
 class VehiclesTestCase(APITestCase):
@@ -29,7 +31,10 @@ class VehiclesTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('results'), self.data)
 
-    def test_attach_user(self):
+    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.delay')
+    @mock.patch('gis_app.signals.update_user_vehicles_task.delay')
+    def test_attach_user(self, update_user_vehicles_mock,
+                         update_users_vehicles_names_m2m_mock):
         self.client.force_authenticate(user=self.user)
         vehicle = self.vehicles[0]
         attach_url = urljoin(self.url, f'{vehicle.id}/attach_user/')
@@ -37,8 +42,12 @@ class VehiclesTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         attached_user = vehicle.users.get(id=self.user.id)
         self.assertEqual(attached_user, self.user)
+        self.assertTrue(update_users_vehicles_names_m2m_mock.called)
 
-    def test_detach_user(self):
+    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.delay')
+    @mock.patch('gis_app.signals.update_user_vehicles_task.delay')
+    def test_detach_user(self, update_user_vehicles_mock,
+                         update_users_vehicles_names_m2m_mock):
         self.client.force_authenticate(user=self.user)
         vehicle = self.user_vehicles[0]
         detach_url = urljoin(self.url, f'{vehicle.id}/detach_user/')
@@ -47,6 +56,8 @@ class VehiclesTestCase(APITestCase):
 
         self.assertRaises(User.DoesNotExist,
                           lambda: vehicle.users.get(id=self.user.id))
+        self.assertTrue(update_user_vehicles_mock.called)
+        self.assertTrue(update_users_vehicles_names_m2m_mock.called)
 
     def test_attach_user_to_wrong_vehicle(self):
         self.client.force_authenticate(user=self.user)

@@ -5,32 +5,20 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from gis_project.celery import app
 from .models import UserPosition, UserAccount, UserVehicle
+from .business_logic import update_avg_coords, update_user_vehicles, update_users_vehicles_names
+from time import sleep
+@app.task
+def update_avg_coords_task(userposition_id):
+    return update_avg_coords(userposition_id)
 
 
 @app.task
-def update_avg_cords_task(userposition_id):
-    try:
-        userposition = UserPosition.objects.get(pk=userposition_id)
-        avg_coords = userposition.user.calculate_avg_coords()
-        userposition.user.avg_coords = json.dumps(avg_coords)
-        userposition.user.save()
-    except UserPosition.DoesNotExist:
-        logging.warning("Trying to get non existing userposition '%s'" %
-                        userposition_id)
+def update_users_vehicles_names_m2m_task(user_pk_set):
+    sleep(10)
+    return update_users_vehicles_names(user_pk_set)
 
 
 @app.task
-def update_user_vehicles_names_m2m_task(user_pk_set):
-    for pk in user_pk_set:
-        user = UserAccount.objects.get(id=pk)
-        vehicles_names = user.get_vehicles_names()
-        user.vehicles = json.dumps(vehicles_names)
-        user.save()
-
-
-@app.task
-def update_user_vehicles_task(uservehicle_id):
-    user_vehicle = UserVehicle.objects.get(id=uservehicle_id)
-    vehicles_names = user_vehicle.user.get_vehicles_names()
-    user_vehicle.user.vehicles = json.dumps(vehicles_names)
-    user_vehicle.user.save()
+def update_user_vehicles_task(user_id):
+    sleep(10)
+    return update_user_vehicles(user_id)

@@ -4,7 +4,6 @@ from django.db.models import Avg
 from django.utils import timezone
 
 
-
 class Location(models.Model):
     name = models.CharField(max_length=255)
     lat = models.FloatField()
@@ -26,8 +25,8 @@ class UserAccount(User):
                                                     lat=Avg('position__lat'))
 
     def get_vehicles_names(self):
-        return list(self.vehicle_set.get_queryset().values_list('name',
-                                                                flat=True))
+        return list(UserVehicle.objects.filter(user_id=self.id).values_list(
+            'vehicle__name', flat=True))
 
 
 class UserPosition(models.Model):
@@ -61,5 +60,3 @@ class UserVehicle(models.Model):
         #         'position__lon',
         #         'position__lat').aggregate(lon=Avg('position__lon'),
         #                                    lat=Avg('position__lat'))
-
-

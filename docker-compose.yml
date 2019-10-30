@@ -39,3 +39,11 @@ services:
    depends_on:
      - db
      - redis
+     - rabbitmq
+ flower:  
+   image: mher/flower
+   environment:
+     - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+     - FLOWER_PORT=8888
+   ports:  
+     - 8888:8888

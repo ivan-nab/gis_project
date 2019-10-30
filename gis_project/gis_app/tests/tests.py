@@ -1,4 +1,5 @@
 from statistics import mean
+from unittest import mock
 from urllib.parse import urljoin
 
 from django.utils.dateparse import parse_datetime
@@ -10,6 +11,7 @@ from gis_app.serializers import UserPositionSerializer, UserSummarySerializer
 
 from .factories import (LocationFactory, UserFactory, UserPositionFactory,
                         VehicleFactory)
+from gis_app.business_logic import update_users_vehicles_names, update_user_vehicles, update_avg_coords
 
 
 class UserPositionTestCase(APITestCase):
@@ -33,7 +35,11 @@ class UserPositionTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('results'), self.data)
 
-    def test_create_userposition(self):
+    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+                       CELERY_ALWAYS_EAGER=True,
+                       CELERY_BROKER_URL='memory')
+    @mock.patch('gis_app.signals.update_avg_coords_task.delay')
+    def test_create_userposition(self, update_avg_coords_task_mock):
         self.client.force_authenticate(user=self.users[0])
         new_userposition = UserPositionFactory(user=self.users[0])
         data = UserPositionSerializer(new_userposition).data
@@ -41,6 +47,7 @@ class UserPositionTestCase(APITestCase):
         data['id'] = response.data['id']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(data, response.data)
+        self.assertTrue(update_avg_coords_task_mock.called)
 
     def test_get_userpositions_unauthorized(self):
         self.client.logout()
@@ -135,7 +142,12 @@ class UserSummaryTestCase(APITestCase):
     @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
                        CELERY_ALWAYS_EAGER=True,
                        CELERY_BROKER_URL='memory')
-    def test_user_vehicles_names(self):
+    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.delay',
+                side_effect=update_users_vehicles_names)
+    @mock.patch('gis_app.signals.update_user_vehicles_task.delay',
+                side_effect=update_user_vehicles)
+    def test_user_vehicles_names(self, update_user_vehicles_task_mock,
+                                 update_users_vehicles_names_m2m_task_mock):
         self.client.force_authenticate(self.user)
         self.vehicles[0].users.add(self.user)
         response = self.client.get(self.url)
@@ -144,11 +156,18 @@ class UserSummaryTestCase(APITestCase):
         self.assertNotEqual(self.user.vehicles, [])
         self.assertEqual(received_vehicles_names,
                          [v.name for v in self.user.vehicle_set.all()])
+        self.assertTrue(update_users_vehicles_names_m2m_task_mock.called)
 
     @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
                        CELERY_ALWAYS_EAGER=True,
                        CELERY_BROKER_URL='memory')
-    def test_user_vehicles_names_cache(self):
+    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.delay',
+                side_effect=update_users_vehicles_names)
+    @mock.patch('gis_app.signals.update_user_vehicles_task.delay',
+                side_effect=update_user_vehicles)
+    def test_user_vehicles_names_cache(
+            self, update_user_vehicles_task_mock,
+            update_users_vehicles_names_m2m_task_mock):
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
         summary_info = response.data['results'][0]
@@ -158,7 +177,7 @@ class UserSummaryTestCase(APITestCase):
                              f'{vehicle.id}/attach_user/')
         response = self.client.post(attach_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
+        self.assertTrue(update_users_vehicles_names_m2m_task_mock.called)
         with self.assertNumQueries(3):
             response = self.client.get(self.url)
         summary_info = response.data['results'][0]
@@ -167,15 +186,17 @@ class UserSummaryTestCase(APITestCase):
         self.assertNotEqual(received_vehicles_names, new_vehicle_names)
 
     @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
-                       CELERY_ALWAYS_EAGER=True,
-                       CELERY_BROKER_URL='memory')
-    def test_user_avg_coords_cache(self):
+                       CELERY_ALWAYS_EAGER=True)
+    @mock.patch('gis_app.signals.update_avg_coords_task.delay',
+                side_effect=update_avg_coords)
+    def test_user_avg_coords_cache(self, update_avg_coords_task_mock):
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         coords = summary_info['avg_coords']
         UserPositionFactory(user=self.user)
-        with self.assertNumQueries(3):
+        self.assertTrue(update_avg_coords_task_mock.called)
+        with self.assertNumQueries(2):
             response = self.client.get(self.url)
         summary_info = response.data['results'][0]
         new_coords = summary_info['avg_coords']
