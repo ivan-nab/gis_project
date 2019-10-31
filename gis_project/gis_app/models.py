@@ -49,14 +49,3 @@ class UserVehicle(models.Model):
 
     class Meta:
         unique_together = ('user', 'vehicle')
-
-        # @cached_property
-        # def vehicles(self):
-        #     return list(self.vehicle_set.values_list('name', flat=True))
-
-        # @cached_property
-        # def avg_coords(self):
-        #     return self.userposition_set.get_queryset().objects.values(
-        #         'position__lon',
-        #         'position__lat').aggregate(lon=Avg('position__lon'),
-        #                                    lat=Avg('position__lat'))

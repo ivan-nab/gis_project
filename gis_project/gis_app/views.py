@@ -3,16 +3,13 @@ from django.contrib.auth.models import Group, User
 from django.utils.dateparse import parse_datetime
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import (IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 import gis_app.services as services
 from gis_app.models import Location, UserAccount, UserPosition, Vehicle
-from gis_app.serializers import (GroupSerializer, LocationSerializer,
-                                 UserPositionSerializer, UserSerializer,
-                                 UserSummarySerializer, VehicleSerializer,
-                                 CoordsStringSerializer)
+from gis_app.serializers import (GroupSerializer, LocationSerializer, UserPositionSerializer, UserSerializer,
+                                 UserSummarySerializer, VehicleSerializer, CoordsStringSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -62,18 +59,10 @@ class UserSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSummarySerializer
 
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.filter_queryset(self.get_queryset())
-
-    #     serializer = UserSummarySerializer(queryset, many=True)
-    #     return Response(serializer.data)
-
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        start_time = parse_datetime(
-            self.request.query_params.get('start_time', ''))
-        end_time = parse_datetime(self.request.query_params.get(
-            'end_time', ''))
+        start_time = parse_datetime(self.request.query_params.get('start_time', ''))
+        end_time = parse_datetime(self.request.query_params.get('end_time', ''))
         context['start_time'] = start_time
         context['end_time'] = end_time
         return context
@@ -97,10 +86,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
         user = UserAccount.objects.get(id=self.request.user.id)
         vehicle.users.add(user)
         vehicle.save()
-        return Response({
-            'status':
-            f'vehicle {vehicle.name} attached to user {user.username}'
-        })
+        return Response({'status': f'vehicle {vehicle.name} attached to user {user.username}'})
 
     @action(detail=True, methods=['post'])
     def detach_user(self, request, pk=None):
@@ -108,10 +94,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
         user = UserAccount.objects.get(id=self.request.user.id)
         vehicle.users.remove(user)
         vehicle.save()
-        return Response({
-            'status':
-            f'vehicle {vehicle.name} detached from user {self.request.user.username}'
-        })
+        return Response({'status': f'vehicle {vehicle.name} detached from user {self.request.user.username}'})
 
 
 class DistanceViewSet(viewsets.ViewSet):

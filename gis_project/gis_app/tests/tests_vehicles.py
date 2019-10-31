@@ -20,8 +20,7 @@ class VehiclesTestCase(APITestCase):
         super(VehiclesTestCase, self).setUp()
         self.user = UserFactory()
         self.vehicles = VehicleFactory.create_batch(3, users=(UserFactory(), ))
-        self.user_vehicles = VehicleFactory.create_batch(2,
-                                                         users=(self.user, ))
+        self.user_vehicles = VehicleFactory.create_batch(2, users=(self.user, ))
         self.vehicles.extend(self.user_vehicles)
         self.data = VehicleSerializer(self.vehicles, many=True).data
 
@@ -31,10 +30,9 @@ class VehiclesTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('results'), self.data)
 
-    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.delay')
-    @mock.patch('gis_app.signals.update_user_vehicles_task.delay')
-    def test_attach_user(self, update_user_vehicles_mock,
-                         update_users_vehicles_names_m2m_mock):
+    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.apply_async')
+    @mock.patch('gis_app.signals.update_user_vehicles_task.apply_async')
+    def test_attach_user(self, update_user_vehicles_mock, update_users_vehicles_names_m2m_mock):
         self.client.force_authenticate(user=self.user)
         vehicle = self.vehicles[0]
         attach_url = urljoin(self.url, f'{vehicle.id}/attach_user/')
@@ -44,18 +42,16 @@ class VehiclesTestCase(APITestCase):
         self.assertEqual(attached_user, self.user)
         self.assertTrue(update_users_vehicles_names_m2m_mock.called)
 
-    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.delay')
-    @mock.patch('gis_app.signals.update_user_vehicles_task.delay')
-    def test_detach_user(self, update_user_vehicles_mock,
-                         update_users_vehicles_names_m2m_mock):
+    @mock.patch('gis_app.signals.update_users_vehicles_names_m2m_task.apply_async')
+    @mock.patch('gis_app.signals.update_user_vehicles_task.apply_async')
+    def test_detach_user(self, update_user_vehicles_mock, update_users_vehicles_names_m2m_mock):
         self.client.force_authenticate(user=self.user)
         vehicle = self.user_vehicles[0]
         detach_url = urljoin(self.url, f'{vehicle.id}/detach_user/')
         response = self.client.post(detach_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertRaises(User.DoesNotExist,
-                          lambda: vehicle.users.get(id=self.user.id))
+        self.assertRaises(User.DoesNotExist, lambda: vehicle.users.get(id=self.user.id))
         self.assertTrue(update_user_vehicles_mock.called)
         self.assertTrue(update_users_vehicles_names_m2m_mock.called)
 

@@ -11,11 +11,12 @@ def update_avg_coords(userposition_id):
         userposition.user.avg_coords = json.dumps(avg_coords)
         userposition.user.save()
     except UserPosition.DoesNotExist:
-        logging.warning("Trying to get non existing userposition '%s'" %
-                        userposition_id)
+        logging.warning("Trying to get non existing userposition '%s'" % userposition_id)
+
 
 def update_users_vehicles_names(user_pk_set):
-    return [update_user_vehicles(pk) for pk in user_pk_set]
+    (update_user_vehicles(pk) for pk in user_pk_set)
+
 
 def update_user_vehicles(user_id):
     try:
@@ -24,10 +25,4 @@ def update_user_vehicles(user_id):
         user.vehicles = json.dumps(vehicles_names)
         user.save()
     except UserAccount.DoesNotExist:
-        logging.warning("Trying to get non existing user account'%s'" %
-                        user_id)
-    else:
-        return {
-            "user_id": user.id,
-            "vehicles_names": vehicles_names
-        }
+        logging.warning("Trying to get non existing user account'%s'" % user_id)

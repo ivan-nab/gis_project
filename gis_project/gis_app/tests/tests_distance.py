@@ -23,9 +23,7 @@ class DistanceTestCase(APITestCase):
         first_location = LocationFactory(lat=55.721986, lon=37.555218)
         second_location = LocationFactory(lat=55.736969, lon=37.552643)
         UserPositionFactory(user=self.user, position=second_location)
-        UserPositionFactory(user=self.user,
-                            position=first_location,
-                            fetch_time=datetime.now())
+        UserPositionFactory(user=self.user, position=first_location, fetch_time=datetime.now())
         self.end_coords = "55.765855,37.53788"
 
         with open("gis_app/tests/data/routes_response_good.json", "rt") as fp:
@@ -35,11 +33,7 @@ class DistanceTestCase(APITestCase):
             self.bad_response_json = fp.read()
 
     @mock.patch("gis_app.services.requests.get")
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-        }
-    })
+    @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
     def test_get_distance(self, mock_get):
         self.client.force_authenticate(self.user)
 
@@ -52,11 +46,7 @@ class DistanceTestCase(APITestCase):
         self.assertEqual(response.data.get('distance'), 4984.9)
         mock_get.assert_called_once()
 
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-        }
-    })
+    @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
     @mock.patch("gis_app.services.requests.get")
     def test_save_distance_to_cache(self, mock_get):
         self.client.force_authenticate(self.user)
@@ -68,11 +58,7 @@ class DistanceTestCase(APITestCase):
             self.assertEqual(mock_cache.set.call_count, 1)
 
     @mock.patch("gis_app.services.requests.get")
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-        }
-    })
+    @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
     def test_get_distance_from_cache(self, mock_get):
         self.client.force_authenticate(self.user)
         mock_get.return_value.content = self.good_response_json
@@ -86,19 +72,14 @@ class DistanceTestCase(APITestCase):
         mock_get.assert_not_called()
 
     @mock.patch("gis_app.services.requests.get")
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-        }
-    })
+    @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
     def test_coords_serializer(self, mock_get):
         self.client.force_authenticate(self.user)
         mock_get.return_value.content = self.good_response_json
         mock_get.return_value.status_code = 200
 
         incorrect_param = "dawkdlw"
-        incorrect_param_serializer = CoordsStringSerializer(
-            data=incorrect_param)
+        incorrect_param_serializer = CoordsStringSerializer(data=incorrect_param)
         incorrect_param_serializer.is_valid()
 
         incorrect_lat = "100.0,34.0"
@@ -119,11 +100,7 @@ class DistanceTestCase(APITestCase):
         self.assertEqual(response.data, incorrect_lon_serializer.errors)
 
     @mock.patch("gis_app.services.requests.get")
-    @override_settings(CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-        }
-    })
+    @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
     def test_get_distance_with_bad_response(self, mock_get):
         self.client.force_authenticate(self.user)
         mock_get.return_value.content = self.bad_response_json
