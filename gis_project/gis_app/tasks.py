@@ -1,12 +1,7 @@
-import logging
-import json
-
-from django.urls import reverse
-from django.contrib.auth import get_user_model
 from gis_project.celery import app
-from .models import UserPosition, UserAccount, UserVehicle
-from .business_logic import update_avg_coords, update_user_vehicles, update_users_vehicles_names
-from time import sleep
+
+from .business_logic import (update_avg_coords, update_user_vehicles,
+                             update_users_vehicles_names)
 
 
 @app.task

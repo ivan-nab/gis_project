@@ -1,5 +1,4 @@
 import factory
-from django.contrib.auth.models import User
 from faker import Faker
 
 from gis_app.models import Location, UserPosition, Vehicle, UserAccount

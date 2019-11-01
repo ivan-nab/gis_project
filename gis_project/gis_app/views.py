@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 from django.utils.dateparse import parse_datetime
 from rest_framework import viewsets
 from rest_framework.decorators import action

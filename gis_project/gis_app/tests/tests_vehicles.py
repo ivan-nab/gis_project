@@ -1,15 +1,14 @@
-from urllib.parse import urljoin
 from unittest import mock
+from urllib.parse import urljoin
 
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase, override_settings
+from rest_framework.test import APITestCase
 
 from gis_app.serializers import VehicleSerializer
 
 from .factories import UserFactory, VehicleFactory
-from gis_app.business_logic import update_avg_coords, update_user_vehicles, update_users_vehicles_names
 
 
 class VehiclesTestCase(APITestCase):

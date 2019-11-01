@@ -1,14 +1,12 @@
-import json
 from datetime import datetime
 from unittest import mock
-from urllib.parse import urljoin
 
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, override_settings
 
 from gis_app.exceptions import ExternalServiceError
-from gis_app.serializers import CoordsStringSerializer, VehicleSerializer
+from gis_app.serializers import CoordsStringSerializer
 
 from .factories import LocationFactory, UserFactory, UserPositionFactory
 
@@ -54,7 +52,7 @@ class DistanceTestCase(APITestCase):
         mock_get.return_value.status_code = 200
         with mock.patch('gis_app.views.cache') as mock_cache:
             mock_cache.get.return_value = None
-            response = self.client.get(self.url, {'end': self.end_coords})
+            self.client.get(self.url, {'end': self.end_coords})
             self.assertEqual(mock_cache.set.call_count, 1)
 
     @mock.patch("gis_app.services.requests.get")

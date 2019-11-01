@@ -10,7 +10,7 @@ from rest_framework.test import APITestCase, override_settings
 from gis_app.serializers import UserPositionSerializer, UserSummarySerializer
 
 from .factories import (LocationFactory, UserFactory, UserPositionFactory, VehicleFactory)
-from gis_app.business_logic import update_users_vehicles_names, update_user_vehicles, update_avg_coords
+from gis_app.business_logic import update_users_vehicles_names, update_avg_coords
 
 
 class UserPositionTestCase(APITestCase):

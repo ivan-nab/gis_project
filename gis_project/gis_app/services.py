@@ -2,11 +2,9 @@ import json
 
 import mz2geohash
 import requests
-
 from django.conf import settings
 
 from gis_app.exceptions import ExternalServiceError
-from .models import UserPosition, UserAccount, UserVehicle
 
 
 def get_distance_from_openrouteservice(start, end):
