@@ -1,5 +1,17 @@
+setup:
+  addons:
+    - plan: 'heroku-postgresql:hobby-dev'
+      as: DATABASE
+    - plan: ''heroku-redis:hobby-dev'
+      as: REDIS
+    - plan: 'cloudamqp:lemur'
+      as: CLOUDAMQP
+  config:
+    DJANGO_SETTINGS_MODULE: gis_project.settings.prod
 build:
   docker:
     web: Dockerfile-codeship
+    celery: Dockerfile-codeship
 run:
-  web: python manage.py runserver 0.0.0.0:8000
+  web: python manage.py runserver 0.0.0.0:$PORT
+  celery: celery -A gis_project worker -l info

@@ -27,6 +27,8 @@ services:
  web:
    build: .
    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+   environment:
+    DJANGO_SETTINGS_MODULE: gis_project.settings.local
    volumes:
      - "$PWD/gis_project:/code"
    ports:
@@ -38,6 +40,8 @@ services:
  celery:
    build: .
    command: celery -A gis_project worker -l info
+   environment:
+    DJANGO_SETTINGS_MODULE: gis_project.settings.local
    volumes:
      - "$PWD/gis_project:/code"
    depends_on:
