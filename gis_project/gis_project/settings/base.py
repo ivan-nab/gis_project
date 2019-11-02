@@ -152,8 +152,3 @@ REST_FRAMEWORK = {
 }
 
 OPENROUTESERVICE_API_KEY = os.getenv('OPENROUTESERVICE_API_KEY', "5b3ce3597851110001cf62486763fa81a66e4f6eb844acb17ed611b2")
-
-try:
-    from local_settings import *
-except ImportError:
-    pass
