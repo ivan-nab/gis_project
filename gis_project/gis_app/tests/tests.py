@@ -13,6 +13,7 @@ from .factories import (LocationFactory, UserFactory, UserPositionFactory, Vehic
 from gis_app.business_logic import update_users_vehicles_names, update_avg_coords
 
 
+@override_settings(CELERY_BROKER_URL="memory://localhost/")
 class UserPositionTestCase(APITestCase):
 
     url = reverse('user-position-list')
@@ -49,6 +50,7 @@ class UserPositionTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+@override_settings(CELERY_BROKER_URL="memory://localhost/")
 class UserSummaryTestCase(APITestCase):
     url = reverse('user-summary-list')
 

@@ -1,0 +1,4 @@
+- name: web
+  steps:
+    - service: web
+      command: python manage.py test

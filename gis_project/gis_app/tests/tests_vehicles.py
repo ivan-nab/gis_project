@@ -4,13 +4,14 @@ from urllib.parse import urljoin
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, override_settings
 
 from gis_app.serializers import VehicleSerializer
 
 from .factories import UserFactory, VehicleFactory
 
 
+@override_settings(CELERY_BROKER_URL="memory://localhost/")
 class VehiclesTestCase(APITestCase):
 
     url = reverse('vehicles-list')
