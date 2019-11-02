@@ -8,6 +8,8 @@ DATABASES = {
 }
 CELERY_BROKER_URL = env('CLOUDAMQP_URL')
 CELERY_RESULT_BACKEND = env('REDIS_URL')
+SECRET_KEY = env('SECRET_KEY')
+OPENROUTESERVICE_API_KEY = env('OPENROUTESERVICE_API_KEY')
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
