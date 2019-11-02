@@ -25,7 +25,9 @@ services:
     timeout: 15s
     retries: 1
  web:
-   build: .
+   build:
+     context: .
+     dockerfile: Dockerfile-codeship
    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
    volumes:
      - "$PWD/gis_project:/code"
@@ -36,7 +38,9 @@ services:
      - redis
      - rabbitmq
  celery:
-   build: .
+   build:
+     context: .
+     dockerfile: Dockerfile-codeship
    command: celery -A gis_project worker -l info
    volumes:
      - "$PWD/gis_project:/code"
