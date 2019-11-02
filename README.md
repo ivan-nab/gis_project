@@ -1,0 +1,1 @@
+[![Codeship Status for ivan-nab/gis_project](https://app.codeship.com/projects/39f609c0-df87-0137-8e6d-2243a693e60e/status?branch=master)](https://app.codeship.com/projects/372356)
