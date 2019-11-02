@@ -9,6 +9,8 @@ setup:
   config:
     DJANGO_SETTINGS_MODULE: gis_project.settings.prod
 build:
+  config:
+    DJANGO_SETTINGS_MODULE: gis_project.settings.prod
   docker:
     web: Dockerfile-codeship
     celery: Dockerfile-codeship
