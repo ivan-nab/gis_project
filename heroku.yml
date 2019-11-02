@@ -15,5 +15,5 @@ build:
     web: Dockerfile-codeship
     celery: Dockerfile-codeship
 run:
-  web: python manage.py runserver 0.0.0.0:$PORT
+  web: sh -c "python manage.py migrate && gunicorn -b 0.0.0.0:$PORT gis_project.wsgi"
   celery: celery -A gis_project worker -l info
