@@ -1,3 +1,6 @@
-- name: web
+- name: Show dirs
+  service: web
+  command: ls
+- name: Run Django tests
   service: web
   command: python manage.py test
