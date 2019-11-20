@@ -4,7 +4,7 @@ from gis_app.models import Location, UserPosition, UserAccount, Vehicle, UserVeh
 
 class VehicleExportAdmin(admin.ModelAdmin):
     readonly_fields = ['status', 'file_path']
-    fields = ('status', 'file_path')
+    fields = ('status')
 
 
 admin.site.register(Location)

@@ -1,8 +1,13 @@
 import json
 import logging
+import os
+import uuid
+
+from django.conf import settings
 
 from .models import UserAccount, UserPosition, VehicleExport
 from .services import PdfExport
+
 
 def update_avg_coords(userposition_id):
     try:
@@ -35,6 +40,9 @@ def make_pdf(instance, fields, template):
     qs = instance.get_export_model_queryset()
     exporter = PdfExport(qs, fields, template)
     instance.status = "creating"
+    if not instance.file_path:
+        instance.file_path = os.path.join(settings.PDF_EXPORTS_DIR, f"{uuid.uuid4()}.pdf")
+
     instance.save()
     result = exporter.export_to_pdf(instance.file_path)
     instance.status = "done"
@@ -49,4 +57,3 @@ def create_pdf_report_for_vehicle(vehicle_export_id):
         logging.warning("Trying to get non existing vehicle export'%s'" % vehicle_export_id)
     else:
         make_pdf(vehicle_export, ['id', 'name'], "vehicle_export.html")
-

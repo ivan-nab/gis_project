@@ -54,14 +54,10 @@ class Export(models.Model):
     status = models.CharField(choices=(('new', 'New'), ('creating', 'Creating'), ('done', 'Done')),
                               default='new',
                               max_length=255)
-    file_path = models.FilePathField(path=settings.PDF_EXPORTS_DIR, match="*.pdf", max_length=255)
+    file_path = models.FilePathField(path=settings.PDF_EXPORTS_DIR, match=r".*\.pdf$", max_length=255, blank=True)
 
     class Meta:
         abstract = True
-
-    def clean(self):
-        if not self.file_path:
-            self.file_path = os.path.join(settings.PDF_EXPORTS_DIR, f"{uuid.uuid4()}.pdf")
 
 
 class VehicleExport(Export):
