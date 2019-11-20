@@ -1,3 +1,7 @@
+import os
+import uuid
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Avg
@@ -20,20 +24,15 @@ class UserAccount(User):
             qs = qs.filter(fetch_time__gte=start_time)
         if end_time:
             qs = qs.filter(fetch_time__lte=end_time)
-        return qs.values('position__lon',
-                         'position__lat').aggregate(lon=Avg('position__lon'),
-                                                    lat=Avg('position__lat'))
+        return qs.values('position__lon', 'position__lat').aggregate(lon=Avg('position__lon'), lat=Avg('position__lat'))
 
     def get_vehicles_names(self):
-        return list(UserVehicle.objects.filter(user_id=self.id).values_list(
-            'vehicle__name', flat=True))
+        return list(UserVehicle.objects.filter(user_id=self.id).values_list('vehicle__name', flat=True))
 
 
 class UserPosition(models.Model):
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
-    position = models.ForeignKey(Location,
-                                 null=True,
-                                 on_delete=models.SET_NULL)
+    position = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
     fetch_time = models.DateTimeField(default=timezone.now)
 
 
@@ -49,3 +48,22 @@ class UserVehicle(models.Model):
 
     class Meta:
         unique_together = ('user', 'vehicle')
+
+
+class Export(models.Model):
+    status = models.CharField(choices=(('new', 'New'), ('creating', 'Creating'), ('done', 'Done')),
+                              default='new',
+                              max_length=255)
+    file_path = models.FilePathField(path=settings.PDF_EXPORTS_DIR, match="*.pdf", max_length=255)
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        if not self.file_path:
+            self.file_path = os.path.join(settings.PDF_EXPORTS_DIR, f"{uuid.uuid4()}.pdf")
+
+
+class VehicleExport(Export):
+    def get_export_model_queryset(self):
+        return Vehicle.objects.all()

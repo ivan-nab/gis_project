@@ -3,6 +3,8 @@ import json
 import mz2geohash
 import requests
 from django.conf import settings
+from django.template.loader import render_to_string, get_template
+from xhtml2pdf import pisa
 
 from gis_app.exceptions import ExternalServiceError
 
@@ -26,3 +28,18 @@ def get_distance_from_openrouteservice(start, end):
 def get_hash_for_coords(start, end):
     geo_hash = f"{mz2geohash.encode(start)}-{mz2geohash.encode(end)}"
     return geo_hash
+
+
+class PdfExport:
+    def __init__(self, queryset, fields, template):
+        self.fields = fields
+        self.template = template
+        self.queryset = queryset
+
+    def export_to_pdf(self, file_name):
+        values = self.queryset.values(*self.fields)
+        html = render_to_string(self.template, {"objects": values})
+
+        with open(file_name, "w+b") as dest_pdf:
+            pisaStatus = pisa.CreatePDF(html, dest=dest_pdf) 
+        return pisaStatus.err

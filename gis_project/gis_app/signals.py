@@ -2,7 +2,7 @@ from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
 from .tasks import (update_avg_coords_task, update_user_vehicles_task,
-                    update_users_vehicles_names_m2m_task)
+                    update_users_vehicles_names_m2m_task, create_pdf_report_for_vehicles_task)
 
 
 @receiver(post_save, sender="gis_app.UserPosition", dispatch_uid="update_avg_coords")
@@ -20,3 +20,8 @@ def update_user_vehicles_names_m2m(sender, instance, action, **kwargs):
 @receiver([post_save, post_delete], sender="gis_app.UserVehicle", dispatch_uid="update_user_vehicles")
 def update_user_vehicles(sender, instance, **kwargs):
     update_user_vehicles_task.apply_async((instance.user.id,), countdown=10)
+
+
+@receiver(post_save, sender="gis_app.VehicleExport", dispatch_uid="create_vehicle_export_handler")
+def create_vehicle_export_handler(sender, instance, **kwargs):
+    create_pdf_report_for_vehicles_task.apply_async((instance.id,), countdown=3)

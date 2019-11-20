@@ -1,8 +1,8 @@
 import json
 import logging
 
-from .models import UserAccount, UserPosition
-
+from .models import UserAccount, UserPosition, VehicleExport
+from .services import PdfExport
 
 def update_avg_coords(userposition_id):
     try:
@@ -29,3 +29,24 @@ def update_user_vehicles(user_id):
         vehicles_names = user.get_vehicles_names()
         user.vehicles = json.dumps(vehicles_names)
         user.save()
+
+
+def make_pdf(instance, fields, template):
+    qs = instance.get_export_model_queryset()
+    exporter = PdfExport(qs, fields, template)
+    instance.status = "creating"
+    instance.save()
+    result = exporter.export_to_pdf(instance.file_path)
+    instance.status = "done"
+    instance.save()
+    return result
+
+
+def create_pdf_report_for_vehicle(vehicle_export_id):
+    try:
+        vehicle_export = VehicleExport.objects.get(id=vehicle_export_id)
+    except VehicleExport.DoesNotExist:
+        logging.warning("Trying to get non existing vehicle export'%s'" % vehicle_export_id)
+    else:
+        make_pdf(vehicle_export, ['id', 'name'], "vehicle_export.html")
+
