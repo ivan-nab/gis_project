@@ -24,4 +24,5 @@ def update_user_vehicles(sender, instance, **kwargs):
 
 @receiver(post_save, sender="gis_app.VehicleExport", dispatch_uid="create_vehicle_export_handler")
 def create_vehicle_export_handler(sender, instance, **kwargs):
-    create_pdf_report_for_vehicles_task.apply_async((instance.id,), countdown=3)
+    if kwargs['created']:
+        create_pdf_report_for_vehicles_task.apply_async((instance.id,), countdown=3)
