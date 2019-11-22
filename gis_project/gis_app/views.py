@@ -120,5 +120,3 @@ class DistanceViewSet(viewsets.ViewSet):
         if distance:
             cache.set(geohash, {"distance": distance})
         return Response({"distance": distance})
-
-

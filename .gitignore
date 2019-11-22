@@ -1,7 +1,7 @@
 .vscode/**
 .devcontainer/**
 venv/**
-gis_project/gis_project/pdf_exports/**
+gis_project/pdf_exports/**
 *.pyc
 RU.txt
 .coverage

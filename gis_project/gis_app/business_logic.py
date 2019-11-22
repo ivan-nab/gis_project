@@ -56,4 +56,4 @@ def create_pdf_report_for_vehicle(vehicle_export_id):
     except VehicleExport.DoesNotExist:
         logging.warning("Trying to get non existing vehicle export'%s'" % vehicle_export_id)
     else:
-        make_pdf(vehicle_export, ['id', 'name'], "vehicle_export.html")
+        make_pdf(vehicle_export, ['id', 'name', 'users__username'], "vehicle_export.html")
