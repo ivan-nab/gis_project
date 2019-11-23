@@ -3,7 +3,7 @@ import json
 import mz2geohash
 import requests
 from django.conf import settings
-from django.template.loader import render_to_string, get_template
+from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 
 from gis_app.exceptions import ExternalServiceError
@@ -36,10 +36,11 @@ class PdfExport:
         self.template = template
         self.queryset = queryset
 
-    def export_to_pdf(self, file_name):
+    def export_to_string(self):
         values = self.queryset.values(*self.fields)
-        html = render_to_string(self.template, {"objects": values})
+        return render_to_string(self.template, {"objects": values})
 
+    def export_to_pdf(self, file_name):
         with open(file_name, "w+b") as dest_pdf:
-            pisaStatus = pisa.CreatePDF(html, dest=dest_pdf) 
+            pisaStatus = pisa.CreatePDF(self.export_to_string(), dest=dest_pdf)
         return pisaStatus.err

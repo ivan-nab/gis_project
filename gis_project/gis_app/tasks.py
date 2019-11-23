@@ -18,6 +18,7 @@ def update_users_vehicles_names_m2m_task(user_pk_set):
 def update_user_vehicles_task(user_id):
     return update_user_vehicles(user_id)
 
+
 @app.task
 def create_pdf_report_for_vehicles_task(vehicle_export_id):
     return create_pdf_report_for_vehicle(vehicle_export_id)

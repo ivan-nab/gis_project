@@ -15,7 +15,7 @@ DATABASES = {
 }
 CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672/'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/'
-PDF_EXPORTS_DIR = os.path.join(BASE_DIR,"pdf_exports")
+PDF_EXPORTS_DIR = os.path.join(BASE_DIR, "pdf_exports")
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 TEMPLATES = [
     {

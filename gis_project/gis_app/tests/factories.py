@@ -1,7 +1,9 @@
 import factory
+import tempfile
+import os
 from faker import Faker
 
-from gis_app.models import Location, UserPosition, Vehicle, UserAccount
+from gis_app.models import Location, UserPosition, Vehicle, UserAccount, VehicleExport
 
 faker = Faker()
 
@@ -52,3 +54,10 @@ class VehicleFactory(factory.django.DjangoModelFactory):
         if extracted:
             for user in extracted:
                 self.users.add(user)
+
+
+class VehicleExportFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = VehicleExport
+
+    file_path = factory.LazyAttribute(lambda obj: os.path.join(tempfile.gettempdir(), faker.file_name(extension="pdf")))
