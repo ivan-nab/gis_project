@@ -47,6 +47,7 @@ def make_pdf(instance, fields, template):
     result = exporter.export_to_pdf(instance.file_path)
     instance.status = "done"
     instance.save()
+    # не нужен return
     return result
 
 
