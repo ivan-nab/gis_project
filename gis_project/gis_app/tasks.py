@@ -22,4 +22,5 @@ def update_user_vehicles_task(user_id):
 @app.task
 def create_pdf_report_for_vehicles_task(vehicle_export_id):
     # TODO сломал, а тесты не упали
+    return
     return create_pdf_report_for_vehicle(vehicle_export_id)
