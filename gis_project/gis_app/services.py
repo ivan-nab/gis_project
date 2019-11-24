@@ -43,4 +43,8 @@ class PdfExport:
     def export_to_pdf(self, file_name):
         with open(file_name, "w+b") as dest_pdf:
             pisaStatus = pisa.CreatePDF(self.export_to_string(), dest=dest_pdf)
+        # я так понял, что ошибка эта игнорируется ?
+        # она пробрасывается наверх черех return и дальше нчего мы с ней не делаем
+        # может сделать raise
+        # или сохранить ее в поле error у модели VehicleExport (если райзть не можем обычно делаем так)
         return pisaStatus.err
