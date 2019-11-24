@@ -39,16 +39,11 @@ def update_user_vehicles(user_id):
 def make_pdf(instance, fields, template):
     qs = instance.get_export_model_queryset()
     exporter = PdfExport(qs, fields, template)
-    instance.status = "creating"
+    instance.set_status("creating")
     if not instance.file_path:
         instance.file_path = os.path.join(settings.PDF_EXPORTS_DIR, f"{uuid.uuid4()}.pdf")
-
-    instance.save()
-    result = exporter.export_to_pdf(instance.file_path)
-    instance.status = "done"
-    instance.save()
-    # не нужен return
-    return result
+    exporter.export_to_pdf(instance.file_path)
+    instance.set_status("done")
 
 
 def create_pdf_report_for_vehicle(vehicle_export_id):
