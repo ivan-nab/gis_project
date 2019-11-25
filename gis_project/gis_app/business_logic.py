@@ -5,7 +5,7 @@ import uuid
 
 from django.conf import settings
 
-from .models import UserAccount, UserPosition, VehicleExport
+from .models import UserAccount, UserPosition, VehicleExport, UserPositionExport
 from .services import PdfExport
 
 
@@ -53,3 +53,13 @@ def create_pdf_report_for_vehicle(vehicle_export_id):
         logging.warning("Trying to get non existing vehicle export'%s'" % vehicle_export_id)
     else:
         make_pdf(vehicle_export, ['id', 'name', 'users__username'], "vehicle_export.html")
+
+
+def create_pdf_report_for_user_position(user_position_id):
+    try:
+        user_position_export = UserPositionExport.objects.get(id=user_position_id)
+    except UserPosition.DoesNotExist:
+        logging.warning("Trying to get non existing user position'%s'" % user_position_id)
+    else:
+        make_pdf(user_position_export, ['id', 'user__username', 'position__lat', 'position__lon', 'fetch_time'],
+                 "vehicle_export.html")

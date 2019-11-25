@@ -64,3 +64,8 @@ class Export(models.Model):
 class VehicleExport(Export):
     def get_export_model_queryset(self):
         return Vehicle.objects.all()
+
+
+class UserPositionExport(Export):
+    def get_export_model_queryset(self):
+        return UserPosition.objects.all()
