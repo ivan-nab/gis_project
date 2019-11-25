@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 
 from gis_app.exceptions import ExternalServiceError
+from gis_app.models import Vehicle, UserPosition
 
 
 def get_distance_from_openrouteservice(start, end):
@@ -43,3 +44,17 @@ class PdfExport:
     def export_to_pdf(self, file_name):
         with open(file_name, "w+b") as dest_pdf:
             pisa.CreatePDF(self.export_to_string(), dest=dest_pdf)
+
+
+class UserPositionPdfExport(PdfExport):
+    def __init__(self):
+        self.fields = ['id', 'user__username', 'position__lat', 'position__lon', 'fetch_time']
+        self.template = "vehicle_export.html"
+        self.queryset = UserPosition.objects.all()
+
+
+class VehiclePdfExport(PdfExport):
+    def __init__(self):
+        self.fields = ['id', 'name', 'users__username']
+        self.template = "vehicle_export.html"
+        self.queryset = Vehicle.objects.all()

@@ -6,7 +6,7 @@ import uuid
 from django.conf import settings
 
 from .models import UserAccount, UserPosition, VehicleExport, UserPositionExport
-from .services import PdfExport
+from .services import UserPositionPdfExport, VehiclePdfExport
 
 
 def update_avg_coords(userposition_id):
@@ -36,9 +36,7 @@ def update_user_vehicles(user_id):
         user.save()
 
 
-def make_pdf(instance, fields, template):
-    qs = instance.get_export_model_queryset()
-    exporter = PdfExport(qs, fields, template)
+def make_pdf(instance, exporter):
     instance.set_status("creating")
     if not instance.file_path:
         instance.file_path = os.path.join(settings.PDF_EXPORTS_DIR, f"{uuid.uuid4()}.pdf")
@@ -48,18 +46,17 @@ def make_pdf(instance, fields, template):
 
 def create_pdf_report_for_vehicle(vehicle_export_id):
     try:
-        vehicle_export = VehicleExport.objects.get(id=vehicle_export_id)
+        vehicle_export_instance = VehicleExport.objects.get(id=vehicle_export_id)
     except VehicleExport.DoesNotExist:
         logging.warning("Trying to get non existing vehicle export'%s'" % vehicle_export_id)
     else:
-        make_pdf(vehicle_export, ['id', 'name', 'users__username'], "vehicle_export.html")
+        make_pdf(vehicle_export_instance, VehiclePdfExport())
 
 
 def create_pdf_report_for_user_position(user_position_id):
     try:
-        user_position_export = UserPositionExport.objects.get(id=user_position_id)
-    except UserPosition.DoesNotExist:
+        user_position_export_instance = UserPositionExport.objects.get(id=user_position_id)
+    except UserPositionExport.DoesNotExist:
         logging.warning("Trying to get non existing user position'%s'" % user_position_id)
     else:
-        make_pdf(user_position_export, ['id', 'user__username', 'position__lat', 'position__lon', 'fetch_time'],
-                 "vehicle_export.html")
+        make_pdf(user_position_export_instance, UserPositionPdfExport())
