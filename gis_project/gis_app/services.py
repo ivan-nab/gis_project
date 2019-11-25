@@ -38,9 +38,8 @@ class PdfExport:
 
     def export_to_string(self):
         values = self.queryset.values(*self.fields)
-        return render_to_string(self.template, {"objects": values})
+        return render_to_string(self.template, {"objects": list(values)})
 
     def export_to_pdf(self, file_name):
         with open(file_name, "w+b") as dest_pdf:
-            pisaStatus = pisa.CreatePDF(self.export_to_string(), dest=dest_pdf)
-        return pisaStatus.err
+            pisa.CreatePDF(self.export_to_string(), dest=dest_pdf)

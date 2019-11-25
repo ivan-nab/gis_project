@@ -56,6 +56,10 @@ class Export(models.Model):
     class Meta:
         abstract = True
 
+    def set_status(self, status):
+        self.status = status
+        self.save()
+
 
 class VehicleExport(Export):
     def get_export_model_queryset(self):
