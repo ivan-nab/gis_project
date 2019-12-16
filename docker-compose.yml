@@ -25,12 +25,12 @@ services:
     timeout: 15s
     retries: 1
  elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.3.3
     container_name: elastic
     environment:
       - node.name=es01
-      - discovery.type=single-node
       - bootstrap.memory_lock=true
+      - http.host=0.0.0.0
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:

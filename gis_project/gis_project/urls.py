@@ -23,7 +23,7 @@ from gis_app import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'locations', views.LocationViewSet)
+router.register(r'locations', views.LocationViewSet, basename='locations')
 router.register(r'userpositions',
                 views.UserPositionViewSet,
                 basename='user-position')

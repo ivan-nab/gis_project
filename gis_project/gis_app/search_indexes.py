@@ -17,6 +17,7 @@ class VehicleIndex(indexes.SearchIndex, indexes.Indexable):
 class LocationIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True)
     name = indexes.CharField(model_attr='name')
+    name_auto = indexes.EdgeNgramField(model_attr='name')
 
     def get_model(self):
         return Location
