@@ -5,11 +5,13 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from drf_haystack.viewsets import HaystackViewSet
 
 import gis_app.services as services
 from gis_app.models import Location, UserAccount, UserPosition, Vehicle
 from gis_app.serializers import (GroupSerializer, LocationSerializer, UserPositionSerializer, UserSerializer,
-                                 UserSummarySerializer, VehicleSerializer, CoordsStringSerializer)
+                                 UserSummarySerializer, VehicleSerializer, CoordsStringSerializer,
+                                 LocationsSearchSerializer, VehiclesSearchSerializer, AggregateSearchSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -120,3 +122,19 @@ class DistanceViewSet(viewsets.ViewSet):
         if distance:
             cache.set(geohash, {"distance": distance})
         return Response({"distance": distance})
+
+
+class LocationsSearchViewSet(HaystackViewSet):
+    index_models = [Location]
+
+    serializer_class = LocationsSearchSerializer
+
+
+class VehiclesSearchViewSet(HaystackViewSet):
+    index_models = [Vehicle]
+
+    serializer_class = VehiclesSearchSerializer
+
+
+class AggregateSearchViewSet(HaystackViewSet):
+    serializer_class = AggregateSearchSerializer

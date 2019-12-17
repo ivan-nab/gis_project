@@ -2,8 +2,10 @@ import json
 
 from django.contrib.auth.models import Group
 from rest_framework import serializers
-
+from drf_haystack.serializers import HaystackSerializer
 from gis_app.models import Location, UserAccount, UserPosition, Vehicle
+from gis_app.search_indexes import LocationIndex, VehicleIndex
+from gis_app.mixins import HaystackUrlSerializerMixin
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -64,17 +66,47 @@ class CoordsStringSerializer(serializers.BaseSerializer):
             position_lat = float(position_lat)
             position_lon = float(position_lon)
         except ValueError:
-            raise serializers.ValidationError(
-                {'end': 'Incorrect query parameters'})
+            raise serializers.ValidationError({'end': 'Incorrect query parameters'})
 
         if not -90.0 < position_lat < 90.0:
-            raise serializers.ValidationError(
-                {'end': 'Incorrect latitude value'})
+            raise serializers.ValidationError({'end': 'Incorrect latitude value'})
         if not -180.0 < position_lon < 180.0:
-            raise serializers.ValidationError(
-                {'end': 'Incorrect longitude value'})
+            raise serializers.ValidationError({'end': 'Incorrect longitude value'})
 
         return {'lat': position_lat, 'lon': position_lon}
 
     def to_representation(self, obj):
         return {'lat': obj['lat'], 'lon': obj['lon']}
+
+
+class LocationsSearchSerializer(HaystackSerializer, HaystackUrlSerializerMixin):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        index_classes = [LocationIndex]
+
+        fields = ["name", "url"]
+        search_fields = ["name", "name_auto"]
+
+
+class VehiclesSearchSerializer(HaystackSerializer, HaystackUrlSerializerMixin):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        index_classes = [VehicleIndex]
+
+        fields = ["name", "url"]
+        search_fields = ["name", "name_auto"]
+
+
+class AggregateSearchSerializer(HaystackSerializer, HaystackUrlSerializerMixin):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        index_classes = [LocationIndex, VehicleIndex]
+        fields = ["name", "url"]
+        search_fields = ["name", "name_auto"]
+
+        field_aliases = {
+            "q": "name_auto"
+        }
