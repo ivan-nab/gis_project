@@ -34,29 +34,3 @@ def update_user_vehicles(user_id):
         vehicles_names = user.get_vehicles_names()
         user.vehicles = json.dumps(vehicles_names)
         user.save()
-
-
-def make_pdf(instance, exporter):
-    instance.set_status("creating")
-    if not instance.file_path:
-        instance.file_path = os.path.join(settings.PDF_EXPORTS_DIR, f"{uuid.uuid4()}.pdf")
-    exporter.export_to_pdf(instance.file_path)
-    instance.set_status("done")
-
-
-def create_pdf_report_for_vehicle(vehicle_export_id):
-    try:
-        vehicle_export_instance = VehicleExport.objects.get(id=vehicle_export_id)
-    except VehicleExport.DoesNotExist:
-        logging.warning("Trying to get non existing vehicle export'%s'" % vehicle_export_id)
-    else:
-        make_pdf(vehicle_export_instance, VehiclePdfExport())
-
-
-def create_pdf_report_for_user_position(user_position_id):
-    try:
-        user_position_export_instance = UserPositionExport.objects.get(id=user_position_id)
-    except UserPositionExport.DoesNotExist:
-        logging.warning("Trying to get non existing user position'%s'" % user_position_id)
-    else:
-        make_pdf(user_position_export_instance, UserPositionPdfExport())
