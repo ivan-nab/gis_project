@@ -23,15 +23,19 @@ from gis_app import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
-router.register(r'locations', views.LocationViewSet)
+router.register(r'locations/search', views.LocationsSearchViewSet, base_name="locations-search")
+router.register(r'locations', views.LocationViewSet, basename='locations')
+
 router.register(r'userpositions',
                 views.UserPositionViewSet,
                 basename='user-position')
 router.register(r'usersummary',
                 views.UserSummaryViewSet,
                 basename='user-summary')
+router.register(r'vehicles/search', views.VehiclesSearchViewSet, base_name="vehicles-search")
 router.register(r'vehicles', views.VehicleViewSet, basename='vehicles')
 router.register(r'distance', views.DistanceViewSet, basename='distance')
+router.register(r'search', views.AggregateSearchViewSet, basename='search')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

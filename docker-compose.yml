@@ -10,7 +10,7 @@ services:
   container_name: redis
   image: redis:5.0.6-alpine
   ports:
-     - "6379:6379"
+     - 6379:6379
   entrypoint: redis-server --appendonly yes
   restart: always
  rabbitmq:
@@ -24,6 +24,20 @@ services:
     interval: 5s
     timeout: 15s
     retries: 1
+ elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.3.3
+    container_name: elastic
+    environment:
+      - node.name=es01
+      - bootstrap.memory_lock=true
+      - http.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
  web:
    build: .
    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
@@ -37,6 +51,7 @@ services:
      - db
      - redis
      - rabbitmq
+     - elastic
  celery:
    build: .
    command: celery -A gis_project worker -l info
