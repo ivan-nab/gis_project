@@ -7,9 +7,7 @@ from gis_project.settings.base import *
 
 env = environ.Env()
 
-DATABASES = {
-    'default': env.db()
-}
+DATABASES = {'default': env.db()}
 CELERY_BROKER_URL = env('CLOUDAMQP_URL')
 CELERY_RESULT_BACKEND = env('REDIS_URL')
 SECRET_KEY = env('SECRET_KEY')
@@ -28,6 +26,8 @@ CACHES = {
 es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')
 
 port = es.port or 80
+if es.scheme == 'https' and port == 80:
+    port = 443
 
 HAYSTACK_CONNECTIONS = {
     'default': {
@@ -39,7 +39,7 @@ HAYSTACK_CONNECTIONS = {
 
 if es.username:
     HAYSTACK_CONNECTIONS['default']['KWARGS'] = {"http_auth": es.username + ':' + es.password}
-    
+
 PDF_EXPORTS_DIR = os.path.join(BASE_DIR, "pdf_exports")
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 TEMPLATES = [
