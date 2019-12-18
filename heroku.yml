@@ -6,7 +6,7 @@ setup:
       as: REDIS
     - plan: 'cloudamqp:lemur'
       as: CLOUDAMQP
-    - plan: 'searchbox:starter-5'
+    - plan: 'searchbox:starter'
       as: ELASTICSEARCH
   config:
     DJANGO_SETTINGS_MODULE: gis_project.settings.prod
