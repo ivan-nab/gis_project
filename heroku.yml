@@ -8,8 +8,7 @@ setup:
       as: CLOUDAMQP
     - plan: 'searchbox:starter'
       as: ELASTICSEARCH
-      options:
-        es_version: 5
+      es_version: 5
   config:
     DJANGO_SETTINGS_MODULE: gis_project.settings.prod
 build:
