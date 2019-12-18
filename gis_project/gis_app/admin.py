@@ -1,6 +1,5 @@
 from django.contrib import admin
-from gis_app.models import Location, UserPosition, UserAccount, Vehicle, UserVehicle, VehicleExport,\
-                           UserPositionExport
+from gis_app.models import Location, UserPosition, UserAccount, Vehicle, UserVehicle, VehicleExport, Export
 
 
 class VehicleExportAdmin(admin.ModelAdmin):
@@ -14,4 +13,3 @@ admin.site.register(UserAccount)
 admin.site.register(Vehicle)
 admin.site.register(UserVehicle)
 admin.site.register(VehicleExport)
-admin.site.register(UserPositionExport)

@@ -3,15 +3,13 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Avg
 from django.utils import timezone
-from django.urls import reverse
+
 
 class Location(models.Model):
     name = models.CharField(max_length=255)
     lat = models.FloatField()
     lon = models.FloatField()
 
-    def get_absolute_url(self):
-        return reverse('locations-detail', args=[str(self.id)])
 
 class UserAccount(User):
     vehicles = models.TextField()
@@ -39,9 +37,7 @@ class Vehicle(models.Model):
     name = models.CharField(max_length=255)
     speed = models.DecimalField(max_digits=4, decimal_places=0)
     users = models.ManyToManyField(UserAccount, through='UserVehicle')
-    
-    def get_absolute_url(self):
-        return reverse('vehicles-detail', args=[str(self.id)])
+
 
 class UserVehicle(models.Model):
     user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
@@ -68,8 +64,3 @@ class Export(models.Model):
 class VehicleExport(Export):
     def get_export_model_queryset(self):
         return Vehicle.objects.all()
-
-
-class UserPositionExport(Export):
-    def get_export_model_queryset(self):
-        return UserPosition.objects.all()
