@@ -1,3 +1,3 @@
 - name: Run Django tests
   service: web
-  command: python manage.py test
+  command: python manage.py test --settings gis_project.settings.test

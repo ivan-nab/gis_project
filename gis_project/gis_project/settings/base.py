@@ -104,13 +104,7 @@ CACHES = {
         }
     }
 }
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack_elasticsearch.elasticsearch5.Elasticsearch5SearchEngine',
-        'URL': 'http://elastic:changeme@elastic:9200/',
-        'INDEX_NAME': 'haystack',
-    },
-}
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
