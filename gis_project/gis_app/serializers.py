@@ -107,6 +107,4 @@ class AggregateSearchSerializer(HaystackSerializer, HaystackUrlSerializerMixin):
         fields = ["name", "url"]
         search_fields = ["name", "name_auto"]
 
-        field_aliases = {
-            "q": "name_auto"
-        }
+        field_aliases = {"q": "name_auto"}
