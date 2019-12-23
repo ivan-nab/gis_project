@@ -29,13 +29,7 @@ services:
     container_name: elastic
     environment:
       - node.name=es01
-      - bootstrap.memory_lock=true
       - http.host=0.0.0.0
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
     ports:
       - "9200:9200"
   web:
@@ -58,7 +52,7 @@ services:
       dockerfile: Dockerfile-codeship
     command: celery -A gis_project worker -l info
     environment:
-      DJANGO_SETTINGS_MODULE: gis_project.settings.local
+      DJANGO_SETTINGS_MODULE: gis_project.settings.test
     depends_on:
       - db
       - redis
