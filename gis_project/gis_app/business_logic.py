@@ -1,12 +1,7 @@
 import json
 import logging
-import os
-import uuid
 
-from django.conf import settings
-
-from .models import UserAccount, UserPosition, VehicleExport, UserPositionExport
-from .services import UserPositionPdfExport, VehiclePdfExport
+from .models import UserAccount, UserPosition
 
 
 def update_avg_coords(userposition_id):
